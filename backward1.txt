@@ -1,0 +1,49 @@
+library(lars)
+data("diabetes")
+x.mat = diabetes$x
+y.vec = diabetes$y
+n = length(y.vec)
+p = dim(x.mat)[2]
+nf = 10
+ob.list = split(sample(1:n),1:nf)
+###null model
+cv.err<-0
+for(fid in 1:nf){
+  trx.mat = cbind(1,x.mat[-ob.list[[fid]],])
+  tsx.mat = cbind(1,x.mat[ ob.list[[fid]],])
+  try.vec = y.vec[-ob.list[[fid]]]
+  tsy.vec = y.vec[ ob.list[[fid]]]
+  b.vec = solve(t(trx.mat)%*%trx.mat)%*%t(trx.mat)%*%try.vec 
+  cv.err = cv.err + sum((tsx.mat%*%b.vec-tsy.vec)^2)
+}
+err<-cv.err
+opt<-c()
+###backward model
+mid.vec<-1:10
+for(sid in 1:p){
+  if(sid==1){mid.vec<-1:p} else {mid.vec=(1:p)[-opt]}
+  cv.err.vec = mid.vec*0; eid = 0 
+for(vid in mid.vec){
+  eid=eid+1; cv.err<-0
+for(fid in 1:nf){
+  trx.mat = cbind(1,x.mat[-ob.list[[fid]],mid.vec[-eid]])
+  tsx.mat = cbind(1,x.mat[ ob.list[[fid]],mid.vec[-eid]])
+  try.vec = y.vec[-ob.list[[fid]]]
+  tsy.vec = y.vec[ ob.list[[fid]]]
+  b.vec = solve(t(trx.mat)%*%trx.mat)%*%t(trx.mat)%*%try.vec 
+  cv.err = cv.err + sum((tsx.mat%*%b.vec-tsy.vec)^2)
+}
+cv.err.vec[eid]<-cv.err  
+}
+  nerr = cv.err.vec[which.min(cv.err.vec)]
+  if(err<nerr) break 
+  err = nerr 
+  opt = c(opt,mid.vec[which.min(cv.err.vec)]) 
+}
+print(opt)
+### final model 
+trx.mat = cbind(1,x.mat[,-opt])
+try.vec = y.vec 
+fin.mod = solve(t(trx.mat)%*%trx.mat)%*%t(trx.mat)%*%try.vec 
+fin.mod
+
