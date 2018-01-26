@@ -1,0 +1,59 @@
+#축방향이 아니라 gradient 방향으로 
+#움직이는 방향은 gradient 얼마나 줄일지 정하는게 중요
+#property of the gradient
+my.fun<-function(x){return(x[1]^2+2*x[2]^2-2*x[1]*x[2])}
+
+cp=c(1,-2)#current point
+my.fun(cp)
+my.fun(cp+c(-2,2))
+my.grad.fun<-function(x){return(c(2*x[1]-2*x[2],4*x[2]-2*x[1]))}
+ncp = cp - 0.19*my.grad.fun(cp)
+my.fun(ncp)
+
+
+#patterns
+cp=c(1,-2)#current point
+iter.max<-10000 ; dst = 0.1 ; eps=1e-7
+f.vec<-rep(0,iter.max)
+f.vec<-c()
+for(iter in 1:iter.max){
+  ncp = cp - dst*my.grad.fun(cp)
+  f.vec[iter]<-my.fun(ncp)
+  if(sum(abs(cp-ncp))<eps){break}
+  cp = ncp
+}
+f.vec
+iter
+plot(f.vec[-c(1:9990)])
+##f(x) 랑 미분 f(x) eps 값 초기x값 x<-x-h*미분f(x) h를 큰값으로 두고 시작 
+
+cp=c(1,-2)#current point
+iter.max<-100 ; dst = 10000 ; eps=1e-7
+f.vec<-rep(0,iter.max)
+f.vec<-c()
+for(iter in 1:iter.max){
+  ncp = cp - dst*my.grad.fun(cp)
+  if(sum(abs(cp-ncp))<eps){break}
+  if(my.fun(ncp)<my.fun(cp)){
+    cp<-ncp; f.vec[length(f.vec)+1]<-my.fun(ncp)
+  }else{dst<-0.5*dst}
+}
+f.vec
+iter
+plot(f.vec)
+
+cp=c(1,-2)#current point
+iter.max<-100 ; dst = 10000 ; eps=1e-7
+f.vec<-rep(0,iter.max)
+for(iter in 1:iter.max){
+  for(iiter in 1:iter.max){
+    ncp<-cp-dst*my.grad.fun(cp)
+    if(my.fun(ncp)>my.fun(cp)){dst=dst/2}
+    else break
+  }
+  if(sum(abs(cp-ncp))<eps) break
+  cp<-ncp
+}
+iiter
+dst
+my.fun(ncp)
