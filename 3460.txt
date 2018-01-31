@@ -1,0 +1,14 @@
+a=1750
+result=[]
+i=0
+for k in range(1,1000):
+    i = i + 1
+    if a-(2**i)<0:
+        result.append(i-1)
+        a = a-2**(i-1)
+        i = 0
+    if a==0:
+        break
+        
+        
+result        
